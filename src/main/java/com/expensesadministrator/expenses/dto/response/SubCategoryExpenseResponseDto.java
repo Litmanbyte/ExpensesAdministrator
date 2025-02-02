@@ -1,4 +1,4 @@
-package com.expensesadministrator.expenses.dto;
+package com.expensesadministrator.expenses.dto.response;
 
 public record SubCategoryExpenseResponseDto(String parent, String name) {
 }

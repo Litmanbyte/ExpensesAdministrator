@@ -1,6 +1,6 @@
 package com.expensesadministrator.expenses.service;
 
-import com.expensesadministrator.expenses.dto.ExpenseCategoryResponseDto;
+import com.expensesadministrator.expenses.dto.response.ExpenseCategoryResponseDto;
 import com.expensesadministrator.expenses.dto.mapper.ExpenseCategoryMapper;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
 import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
@@ -25,7 +25,7 @@ public class ExpenseCategoryService {
             return ExpenseCategoryMapper.toDto(expenseCategory);
         }
         else
-            return null; // fazer excep
+            throw new RuntimeException("Erro ao tentar criar a categoria.");
     }
 
     public List<ExpenseCategoryResponseDto> getAllCategories() {
@@ -40,20 +40,30 @@ public class ExpenseCategoryService {
         return category.map(ExpenseCategoryMapper::toDto);
     }
 
-    public Optional<ExpenseCategoryResponseDto> updateCategory(String id, ExpenseCategory expenseCategory) {
-        if (expenseCategoryRepository.existsById(id)) {
-            expenseCategory.setId(id);
+    public Optional<ExpenseCategoryResponseDto> updateCategory(ExpenseCategory expenseCategory) {
+        if (!expenseCategoryRepository.findByName(expenseCategory.getName()).isEmpty()) {
+            expenseCategory.setId(expenseCategory.getId());
             ExpenseCategory updatedCategory = expenseCategoryRepository.save(expenseCategory);
             return Optional.of(ExpenseCategoryMapper.toDto(updatedCategory));
         }
         return Optional.empty();  // Se não encontrar o ID
     }
 
-    public boolean deleteCategory(String id) {
-        if (expenseCategoryRepository.existsById(id)) {
-            expenseCategoryRepository.deleteById(id);
-            return true;
+    public void deleteCategory(String name) {
+        try {
+            getCategoryByName(name).ifPresent(expenseCategoryRepository::delete);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao tentar excluir a categoria.");
         }
-        return false;  // Se não encontrar o ID
+    }
+
+    public Optional<ExpenseCategoryResponseDto> getCategoryByNameDto(String name) {
+        Optional<ExpenseCategory> category = expenseCategoryRepository.findByName(name);
+        return category.map(ExpenseCategoryMapper::toDto);
+    }
+
+    public Optional<ExpenseCategory> getCategoryByName(String name) {
+        Optional<ExpenseCategory> category = expenseCategoryRepository.findByName(name);
+        return category;
     }
 }

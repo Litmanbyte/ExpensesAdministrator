@@ -1,6 +1,6 @@
 package com.expensesadministrator.expenses.dto.mapper;
 
-import com.expensesadministrator.expenses.dto.SubCategoryExpenseResponseDto;
+import com.expensesadministrator.expenses.dto.response.SubCategoryExpenseResponseDto;
 import com.expensesadministrator.expenses.entity.SubCategory;
 
 public class SubCategoryMapper {
