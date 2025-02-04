@@ -1,6 +1,6 @@
 package com.expensesadministrator.expenses.controller;
 
-import com.expensesadministrator.expenses.dto.request.ExpenseCategoryRequest;
+import com.expensesadministrator.expenses.dto.request.ExpenseCategoryRequestDto;
 import com.expensesadministrator.expenses.dto.response.ExpenseCategoryResponseDto;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
 import com.expensesadministrator.expenses.service.ExpenseCategoryService;
@@ -22,7 +22,7 @@ public class ExpenseCategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseCategoryResponseDto> createCategory(@RequestBody ExpenseCategoryRequest expenseCategoryRequest) {
+    public ResponseEntity<ExpenseCategoryResponseDto> createCategory(@RequestBody ExpenseCategoryRequestDto expenseCategoryRequest) {
             Optional<ExpenseCategory> existingCategoryOpt = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
             ExpenseCategoryResponseDto categoryDto = expenseCategoryService.save(existingCategoryOpt.get());
             return new ResponseEntity<>(categoryDto, HttpStatus.CREATED);
@@ -42,7 +42,7 @@ public class ExpenseCategoryController {
     }
 
     @PutMapping
-    public ResponseEntity<ExpenseCategoryResponseDto> updateCategory(@RequestBody ExpenseCategoryRequest expenseCategoryRequest) {
+    public ResponseEntity<ExpenseCategoryResponseDto> updateCategory(@RequestBody ExpenseCategoryRequestDto expenseCategoryRequest) {
         Optional<ExpenseCategory> existingCategoryOpt = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
 
         if (existingCategoryOpt.isEmpty()) {
