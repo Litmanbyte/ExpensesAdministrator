@@ -17,4 +17,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleExpenseNotFound(ExpenseNotFoundException ex){
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(SubCategoryNotFoundException.class)
+    public ResponseEntity<Void> handleSubCategoryNotFound(SubCategoryNotFoundException ex){
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ParentCategoryNotFoundException.class)
+    public ResponseEntity<Void> handleParentCategoryNotFoundException(ParentCategoryNotFoundException ex){
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 }

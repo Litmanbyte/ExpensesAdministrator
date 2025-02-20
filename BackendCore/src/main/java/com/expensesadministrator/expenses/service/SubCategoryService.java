@@ -1,10 +1,12 @@
 package com.expensesadministrator.expenses.service;
 
+import com.expensesadministrator.expenses.dto.request.SubCategoryRequestDto;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
 import com.expensesadministrator.expenses.entity.SubCategory;
+import com.expensesadministrator.expenses.exception.ParentCategoryNotFoundException;
+import com.expensesadministrator.expenses.exception.SubCategoryNotFoundException;
 import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
 import com.expensesadministrator.expenses.repository.SubCategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,16 +25,18 @@ public class SubCategoryService {
     }
 
     // Create a new SubCategory
-    public SubCategory createSubCategory(SubCategory subCategory) {
-        if (subCategory.getParent() != null) {
-            Optional<ExpenseCategory> parentCategory = expenseCategoryRepository.findById(subCategory.getParent().getId());
-            if (parentCategory.isPresent()) {
+    public SubCategory createSubCategory(SubCategoryRequestDto subCategoryRequestDto) {
+        Optional<ExpenseCategory> opt = expenseCategoryRepository.findByName(subCategoryRequestDto.parentName());
+        if (opt.isPresent()) {
+                SubCategory subCategory = new SubCategory();
+                subCategory.setName(subCategoryRequestDto.name());
+                subCategory.setParent(opt.get());
                 return subCategoryRepository.save(subCategory);
             }
-            throw new RuntimeException("Parent category not found");
+            throw new ParentCategoryNotFoundException("Categoria pai não encontrada");
         }
-        throw new RuntimeException("Parent category must be specified");
     }
+
 
     // Get all subcategories
     public List<SubCategory> getAllSubCategories() {
@@ -57,7 +61,7 @@ public class SubCategoryService {
             }
             return subCategoryRepository.save(subCategory);
         } else {
-            throw new RuntimeException("SubCategory not found");
+            throw new SubCategoryNotFoundException("Subcategoria não encontrada");
         }
     }
 
@@ -67,7 +71,7 @@ public class SubCategoryService {
         if (subCategoryOptional.isPresent()) {
             subCategoryRepository.deleteById(id);
         } else {
-            throw new RuntimeException("SubCategory not found");
+            throw new SubCategoryNotFoundException("Subcategoria não encontrada");
         }
     }
 

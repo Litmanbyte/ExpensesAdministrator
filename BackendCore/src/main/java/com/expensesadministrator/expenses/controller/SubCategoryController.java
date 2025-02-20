@@ -22,14 +22,12 @@ public class SubCategoryController {
 
     // Create a new SubCategory
     @PostMapping
-    public ResponseEntity<SubCategory> createSubCategory(@RequestBody SubCategoryRequestDto subCategoryRequestDto) {
+    public ResponseEntity<SubCategory> createSubCategory(@RequestBody SubCategoryRequestDto subCategoryRequestDto){
         SubCategory subCategory = new SubCategory();
-        try {
-            SubCategory createdSubCategory = subCategoryService.createSubCategory(subCategory);
-            return new ResponseEntity<>(createdSubCategory, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+        subCategory.setName(subCategoryRequestDto.getName());
+        subCategory.setParent(subCategoryRequestDto.getParent());  // Set parent if exists
+        SubCategory createdSubCategory = subCategoryService.createSubCategory(subCategory);
+        return new ResponseEntity<>(createdSubCategory, HttpStatus.CREATED);
     }
 
     // Get all subcategories
