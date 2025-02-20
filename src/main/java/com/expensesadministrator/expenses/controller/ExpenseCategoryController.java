@@ -3,13 +3,13 @@ package com.expensesadministrator.expenses.controller;
 import com.expensesadministrator.expenses.dto.request.ExpenseCategoryRequestDto;
 import com.expensesadministrator.expenses.dto.response.ExpenseCategoryResponseDto;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
+import com.expensesadministrator.expenses.exception.ExpenseCategoryNotFoundException;
 import com.expensesadministrator.expenses.service.ExpenseCategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/categories")
@@ -23,8 +23,8 @@ public class ExpenseCategoryController {
 
     @PostMapping
     public ResponseEntity<ExpenseCategoryResponseDto> createCategory(@RequestBody ExpenseCategoryRequestDto expenseCategoryRequest) {
-            Optional<ExpenseCategory> existingCategoryOpt = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
-            ExpenseCategoryResponseDto categoryDto = expenseCategoryService.save(existingCategoryOpt.get());
+            ExpenseCategory existingCategory = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
+            ExpenseCategoryResponseDto categoryDto = expenseCategoryService.save(existingCategory);
             return new ResponseEntity<>(categoryDto, HttpStatus.CREATED);
     }
 
@@ -36,27 +36,23 @@ public class ExpenseCategoryController {
 
     @GetMapping("/{name}")
     public ResponseEntity<ExpenseCategoryResponseDto> getCategoryByName(@PathVariable String name) {
-        Optional<ExpenseCategoryResponseDto> category = expenseCategoryService.getCategoryByNameDto(name);
-        return category.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @PutMapping
-    public ResponseEntity<ExpenseCategoryResponseDto> updateCategory(@RequestBody ExpenseCategoryRequestDto expenseCategoryRequest) {
-        Optional<ExpenseCategory> existingCategoryOpt = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
-
-        if (existingCategoryOpt.isEmpty()) {
+        try {
+            ExpenseCategoryResponseDto category = expenseCategoryService.getCategoryByNameDto(name);
+            return new ResponseEntity<>(category, HttpStatus.OK);
+        } catch (ExpenseCategoryNotFoundException ex) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
 
-        ExpenseCategory existingCategory = existingCategoryOpt.get();
-        existingCategory.setName(expenseCategoryRequest.name());
 
-        Optional<ExpenseCategoryResponseDto> updatedCategory = expenseCategoryService.updateCategory(existingCategory);
+    @PutMapping
+    public ResponseEntity<ExpenseCategoryResponseDto> updateCategory(@RequestBody
+                                                            ExpenseCategoryRequestDto expenseCategoryRequest) 
+        {
+        ExpenseCategory existingCategory = expenseCategoryService.getCategoryByName(expenseCategoryRequest.name());
+        ExpenseCategoryResponseDto updatedCategory = expenseCategoryService.updateCategory(existingCategory);
 
-        return updatedCategory
-                .map(response -> new ResponseEntity<>(response, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
 
 

@@ -3,10 +3,10 @@ package com.expensesadministrator.expenses.service;
 import com.expensesadministrator.expenses.dto.response.ExpenseCategoryResponseDto;
 import com.expensesadministrator.expenses.dto.mapper.ExpenseCategoryMapper;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
+import com.expensesadministrator.expenses.exception.ExpenseCategoryNotFoundException;
 import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +25,7 @@ public class ExpenseCategoryService {
             return ExpenseCategoryMapper.toDto(expenseCategory);
         }
         else
-            throw new RuntimeException("Erro ao tentar criar a categoria.");
+            throw new ExpenseCategoryNotFoundException("Categoria não encontrada: " + expenseCategory.getName());
     }
 
     public List<ExpenseCategoryResponseDto> getAllCategories() {
@@ -35,35 +35,48 @@ public class ExpenseCategoryService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<ExpenseCategoryResponseDto> getCategoryById(String id) {
-        Optional<ExpenseCategory> category = expenseCategoryRepository.findById(id);
-        return category.map(ExpenseCategoryMapper::toDto);
+    public ExpenseCategoryResponseDto getCategoryById(String id) {
+        ExpenseCategory category = expenseCategoryRepository.findById(id)
+                .orElseThrow(() -> new ExpenseCategoryNotFoundException("Categoria não encontrada!"));
+        
+        return ExpenseCategoryMapper.toDto(category);
     }
+    
+    public ExpenseCategoryResponseDto updateCategory(ExpenseCategory expenseCategory) {
+        // Verifica se a categoria com o ID existe
+        ExpenseCategory existingCategory = expenseCategoryRepository.findById(expenseCategory.getId())
+                .orElseThrow(() -> new ExpenseCategoryNotFoundException("Categoria não encontrada para atualização!"));
+        
+        // Atualiza a categoria (pode realizar outros ajustes se necessário, como validar o nome, etc)
+        existingCategory.setName(expenseCategory.getName());  // Exemplo: Atualizando nome, adicione outros campos conforme necessário
+        ExpenseCategory updatedCategory = expenseCategoryRepository.save(existingCategory);
+    
+        return ExpenseCategoryMapper.toDto(updatedCategory);
+    }
+    
 
-    public Optional<ExpenseCategoryResponseDto> updateCategory(ExpenseCategory expenseCategory) {
+   /* public Optional<ExpenseCategoryResponseDto> updateCategory(ExpenseCategory expenseCategory) {
         if (!expenseCategoryRepository.findByName(expenseCategory.getName()).isEmpty()) {
             expenseCategory.setId(expenseCategory.getId());
             ExpenseCategory updatedCategory = expenseCategoryRepository.save(expenseCategory);
             return Optional.of(ExpenseCategoryMapper.toDto(updatedCategory));
         }
         return Optional.empty();  // Se não encontrar o ID
-    }
+    }*/
 
     public void deleteCategory(String name) {
-        try {
-            getCategoryByName(name).ifPresent(expenseCategoryRepository::delete);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao tentar excluir a categoria.");
-        }
+        ExpenseCategory category = getCategoryByName(name); 
+        expenseCategoryRepository.delete(category);
+    } 
+    
+    public ExpenseCategoryResponseDto getCategoryByNameDto(String name) {
+        ExpenseCategory category = getCategoryByName(name); 
+        return ExpenseCategoryMapper.toDto(category);
+    }    
+    
+    public ExpenseCategory getCategoryByName(String name) {
+        return expenseCategoryRepository.findByName(name)
+            .orElseThrow(() -> new ExpenseCategoryNotFoundException("Categoria não encontrada: " + name));
     }
-
-    public Optional<ExpenseCategoryResponseDto> getCategoryByNameDto(String name) {
-        Optional<ExpenseCategory> category = expenseCategoryRepository.findByName(name);
-        return category.map(ExpenseCategoryMapper::toDto);
-    }
-
-    public Optional<ExpenseCategory> getCategoryByName(String name) {
-        Optional<ExpenseCategory> category = expenseCategoryRepository.findByName(name);
-        return category;
-    }
+    
 }

@@ -5,6 +5,8 @@ import com.expensesadministrator.expenses.dto.response.ExpenseResponseDto;
 import com.expensesadministrator.expenses.dto.mapper.ExpenseMapper;
 import com.expensesadministrator.expenses.entity.Expense;
 import com.expensesadministrator.expenses.entity.ExpenseCategory;
+import com.expensesadministrator.expenses.exception.ExpenseCategoryNotFoundException;
+import com.expensesadministrator.expenses.exception.ExpenseNotFoundException;
 import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
 import com.expensesadministrator.expenses.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
@@ -52,40 +54,15 @@ public class ExpenseService {
     }
 
     public List<ExpenseResponseDto> getExpensesByCategoryName(String categoryName) {
-        Optional<ExpenseCategory> nameOfCategory = expenseCategoryRepository.findByName(categoryName);
-
-        List<Expense> expenses = getAllExpenses().stream()
-                .filter(u -> u.getCategory().getName().equals(nameOfCategory))
-                .collect(Collectors.toList());
-
+        List<Expense> expenses = expenseRepository.findByCategoryName(categoryName);
+        
+        if (expenses.isEmpty()) {
+            throw new ExpenseNotFoundException("Gastos não encontrados para a categoria: " + categoryName);
+        }
+        
         return expenses.stream()
                 .map(ExpenseMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    // Busca uma despesa pelo ID
-    public Optional<ExpenseResponseDto> getExpenseById(String id) {
-        Optional<Expense> expense = expenseRepository.findById(id);
-        return expense.map(ExpenseMapper::toDto);
-    }
-
-    // Atualiza uma despesa pelo ID
-    public Optional<ExpenseResponseDto> updateExpense(String id, Expense expense) {
-        if (expenseRepository.existsById(id)) {
-            expense.setId(id);
-            Expense updatedExpense = expenseRepository.save(expense);
-            return Optional.of(ExpenseMapper.toDto(updatedExpense));
-        }
-        return Optional.empty();  // Se não encontrar o ID
-    }
-
-    // Deleta uma despesa pelo ID
-    public boolean deleteExpense(String id) {
-        if (expenseRepository.existsById(id)) {
-            expenseRepository.deleteById(id);
-            return true;
-        }
-        return false;  // Se não encontrar o ID
     }
 
     public List<ExpenseResponseDto> getExpensesByName(String name) {
@@ -94,5 +71,28 @@ public class ExpenseService {
                 .map(ExpenseMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    public ExpenseResponseDto getExpenseById(String id) {
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ExpenseNotFoundException("Gasto não encontrado!"));
+        return ExpenseMapper.toDto(expense);
+    }
+
+    public ExpenseResponseDto updateExpense(String id, Expense expense) {
+        if (!expenseRepository.existsById(id)) {
+            throw new ExpenseNotFoundException("Gasto não encontrado para atualização!");
+        }
+        expense.setId(id);  // Garantir que o ID seja preservado
+        Expense updatedExpense = expenseRepository.save(expense);
+        return ExpenseMapper.toDto(updatedExpense);
+    }
+
+    public void deleteExpense(String id) {
+        if (!expenseRepository.existsById(id)) {
+            throw new ExpenseNotFoundException("Gasto não encontrado para exclusão!");
+        }
+        expenseRepository.deleteById(id);
+    }
+
 }
 
