@@ -17,4 +17,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Void> handleExpenseNotFound(ExpenseNotFoundException ex){
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(IncomeNotFoundException.class)
+    public ResponseEntity<Void> handleExpenseNotFound(IncomeNotFoundException ex){
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Void> handleUserNotFound(UserNotFoundException ex){
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }

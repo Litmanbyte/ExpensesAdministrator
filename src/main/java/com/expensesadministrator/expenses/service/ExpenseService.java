@@ -4,30 +4,46 @@ import com.expensesadministrator.expenses.dto.request.ExpenseRequestDto;
 import com.expensesadministrator.expenses.dto.response.ExpenseResponseDto;
 import com.expensesadministrator.expenses.dto.mapper.ExpenseMapper;
 import com.expensesadministrator.expenses.entity.Expense;
+import com.expensesadministrator.expenses.entity.ExpenseCategory;
+import com.expensesadministrator.expenses.entity.User;
 import com.expensesadministrator.expenses.exception.ExpenseNotFoundException;
-import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
 import com.expensesadministrator.expenses.repository.ExpenseRepository;
+import com.expensesadministrator.expenses.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
 
+
     private final ExpenseRepository expenseRepository;
-    private final ExpenseCategoryRepository expenseCategoryRepository;
+    private final UserService userService;
     private final ExpenseMapper expenseMapper;
+    private final ExpenseCategoryService expenseCategoryService;
 
 
-    public ExpenseService(ExpenseRepository expenseRepository, ExpenseCategoryRepository expenseCategoryRepository, ExpenseMapper expenseMapper) {
+    public ExpenseService(ExpenseCategoryService expenseCategoryService, ExpenseRepository expenseRepository, UserService userService, ExpenseMapper expenseMapper, UserRepository userRepository) {
         this.expenseRepository = expenseRepository;
         this.expenseMapper = expenseMapper;
-        this.expenseCategoryRepository = expenseCategoryRepository;
+        this.userService = userService;
+        this.expenseCategoryService = expenseCategoryService;
     }
 
     public ExpenseResponseDto save(ExpenseRequestDto expenseDto, String userName) {
-        Expense expense = expenseMapper.toEntity(expenseDto, userName);
+        User u = userService.getUserByName(userName);
+        ExpenseCategory ec = expenseCategoryService.getCategoryByName(userName);
+        Expense expense = new Expense(
+            null,
+            ec,
+            expenseDto.amount(),
+            new Date(),
+            false,
+            expenseDto.installment(),
+            u);
         expenseRepository.save(expense);
         return ExpenseMapper.toDto(expense);
     }

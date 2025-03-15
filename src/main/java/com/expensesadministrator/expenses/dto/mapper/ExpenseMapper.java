@@ -2,8 +2,10 @@ package com.expensesadministrator.expenses.dto.mapper;
 
 import com.expensesadministrator.expenses.dto.request.ExpenseRequestDto;
 import com.expensesadministrator.expenses.entity.Expense;
+import com.expensesadministrator.expenses.entity.User;
 import com.expensesadministrator.expenses.dto.response.ExpenseResponseDto;
 import com.expensesadministrator.expenses.service.ExpenseCategoryService;
+import com.expensesadministrator.expenses.service.UserService;
 
 import java.util.Date;
 
@@ -11,28 +13,19 @@ public class ExpenseMapper {
 
     private final ExpenseCategoryService expenseCategoryService;
 
-    public ExpenseMapper(ExpenseCategoryService expenseCategoryService) {
+    public ExpenseMapper(ExpenseCategoryService expenseCategoryService, UserService userService ) {
         this.expenseCategoryService = expenseCategoryService;
     }
 
     public static ExpenseResponseDto toDto(Expense expense) {
         return new ExpenseResponseDto(
-                expense.getNameOfUser(),
+                expense.getUser().getNameOfUser(),
                 expense.getCategory().getName(),
-                expense.getAmount()
+                expense.getAmount(),
+                expense.getInstallment()
         );
     }
 
-    public Expense toEntity(ExpenseRequestDto dto, String nameOfUser) {
-        // Preenchendo o nome do usuário, a categoria e a data automaticamente
-        return new Expense(
-                null, // ID será gerado automaticamente pelo banco
-                nameOfUser, // Nome do usuário (passado como argumento)
-                expenseCategoryService.getCategoryByName(dto.categoryName()),
-                dto.amount(),
-                new Date() // Data atual
-        );
-    }
 
 
 }

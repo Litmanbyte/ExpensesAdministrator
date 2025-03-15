@@ -1,4 +1,4 @@
 package com.expensesadministrator.expenses.dto.response;
 
-public record ExpenseResponseDto(String name, String userName, Double amount) {
+public record ExpenseResponseDto(String name, String userName, Double amount,Integer installment) {
 }
