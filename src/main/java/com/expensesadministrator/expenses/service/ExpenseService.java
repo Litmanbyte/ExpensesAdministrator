@@ -4,15 +4,12 @@ import com.expensesadministrator.expenses.dto.request.ExpenseRequestDto;
 import com.expensesadministrator.expenses.dto.response.ExpenseResponseDto;
 import com.expensesadministrator.expenses.dto.mapper.ExpenseMapper;
 import com.expensesadministrator.expenses.entity.Expense;
-import com.expensesadministrator.expenses.entity.ExpenseCategory;
-import com.expensesadministrator.expenses.exception.ExpenseCategoryNotFoundException;
 import com.expensesadministrator.expenses.exception.ExpenseNotFoundException;
 import com.expensesadministrator.expenses.repository.ExpenseCategoryRepository;
 import com.expensesadministrator.expenses.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +29,7 @@ public class ExpenseService {
     public ExpenseResponseDto save(ExpenseRequestDto expenseDto, String userName) {
         Expense expense = expenseMapper.toEntity(expenseDto, userName);
         expenseRepository.save(expense);
-        return expenseMapper.toDto(expense);
+        return ExpenseMapper.toDto(expense);
     }
 
     public List<Expense> getAllExpenses() {

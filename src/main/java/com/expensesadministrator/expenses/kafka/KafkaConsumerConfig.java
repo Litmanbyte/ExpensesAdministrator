@@ -12,8 +12,6 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.listener.MessageListener;
-import org.springframework.kafka.listener.MessageListenerContainer;
 
 @Configuration
 @EnableKafka
@@ -37,9 +35,10 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentMessageListenerContainer<String, String> messageListenerContainer(
-            ConsumerFactory<String, String> consumerFactory) {
+            ConsumerFactory<String, String> consumerFactory) 
+        {
         ContainerProperties containerProps = new ContainerProperties("your_topic_name"); // Nome do tópico
-        containerProps.setMessageListener(new YourMessageListener()); // Classe de listener que irá processar a mensagem
+        containerProps.setMessageListener(new KafkaListener()); // Classe de listener que irá processar a mensagem
         return new ConcurrentMessageListenerContainer<>(consumerFactory, containerProps);
     }
 }

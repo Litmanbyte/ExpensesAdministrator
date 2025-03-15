@@ -61,24 +61,22 @@ public class ExpenseController {
     // Endpoint para buscar uma despesa por ID
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseResponseDto> getExpenseById(@PathVariable String id) {
-        Optional<ExpenseResponseDto> expense = expenseService.getExpenseById(id);
-        return expense.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        ExpenseResponseDto expense = expenseService.getExpenseById(id);
+        return new ResponseEntity<>(expense, HttpStatus.OK);
+
     }
 
     // Endpoint para atualizar uma despesa
     @PutMapping("/{id}")
     public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable String id, @RequestBody Expense expense) {
-        Optional<ExpenseResponseDto> updatedExpense = expenseService.updateExpense(id, expense);
-        return updatedExpense.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        ExpenseResponseDto updatedExpense = expenseService.updateExpense(id, expense);
+        return new ResponseEntity<>(updatedExpense, HttpStatus.OK);
     }
 
     // Endpoint para excluir uma despesa
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable String id) {
-        boolean isDeleted = expenseService.deleteExpense(id);
-        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        expenseService.deleteExpense(id);
+        return ResponseEntity.noContent().build();
     }
 }

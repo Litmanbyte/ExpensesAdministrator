@@ -28,8 +28,7 @@ public class ExpenseMapper {
         return new Expense(
                 null, // ID será gerado automaticamente pelo banco
                 nameOfUser, // Nome do usuário (passado como argumento)
-                expenseCategoryService.getCategoryByName(dto.categoryName())
-                        .orElseThrow(() -> new RuntimeException("Categoria não encontrada")),
+                expenseCategoryService.getCategoryByName(dto.categoryName()),
                 dto.amount(),
                 new Date() // Data atual
         );
