@@ -1,0 +1,11 @@
+# Usa uma imagem base do OpenJDK
+FROM openjdk:17-jdk-slim
+
+# Copia o JAR gerado no seu diretório local para dentro do contêiner
+COPY target/myapp.jar /app.jar
+
+# Exponha a porta em que o seu aplicativo vai rodar
+EXPOSE 8080
+
+# Comando para rodar o aplicativo
+ENTRYPOINT ["java", "-jar", "/app.jar"]
