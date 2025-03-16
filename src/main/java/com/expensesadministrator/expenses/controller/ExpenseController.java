@@ -3,9 +3,11 @@ package com.expensesadministrator.expenses.controller;
 import com.expensesadministrator.expenses.dto.request.ExpenseRequestDto;
 import com.expensesadministrator.expenses.dto.response.ExpenseResponseDto;
 import com.expensesadministrator.expenses.entity.Expense;
+import com.expensesadministrator.expenses.entity.User;
 import com.expensesadministrator.expenses.service.ExpenseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +23,13 @@ public class ExpenseController {
     }
 
     // Endpoint para salvar uma despesa
-    @PostMapping
-    public ResponseEntity<ExpenseResponseDto> saveExpense(@RequestBody ExpenseRequestDto expenseDto) {
-        // Exemplo de como recuperar o nome do usuário (aqui é só um exemplo, deve ser recuperado de autenticação ou sessão)
-        String nameOfUser = "João"; // Isso deve vir de algum contexto, como um JWT ou um serviço de autenticação.
+    @PostMapping("/expenses")
+    public ResponseEntity<ExpenseResponseDto> saveExpense(@RequestBody ExpenseRequestDto expenseDto,
+                                                           @AuthenticationPrincipal User authenticatedUser) {
+        // Recupera o usuário autenticado a partir do token JWT
+        String nameOfUser = authenticatedUser.getLogin();
 
-        // Chama o serviço passando o nome do usuário
+        // Salva a despesa associada ao usuário
         ExpenseResponseDto savedExpense = expenseService.save(expenseDto, nameOfUser);
 
         return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
